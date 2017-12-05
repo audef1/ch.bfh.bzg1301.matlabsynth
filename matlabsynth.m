@@ -1,21 +1,24 @@
+clear all;
 clear sound;
 
 synthgui()
 
 function synthgui
-    global file1
-    global track1
-    global y1
-    global Fs1
-    global t1
-    global amplitude1
-    global speed1
-    global track1player
+    global file1 file2
+    global track1 track2
+    global y1 y2
+    global Fs1 Fs2
+    global t1 t2
+    global amplitude1 amplitude2
+    global speed1 speed2
+    global track1player track2player
     
     global gui
     global playbtn
     global stopbtn
-    
+    global speed1sld
+    global speed2sld
+       
     % define track1 (static)
     file1 = 'track1.mp3';
     track1 = audioinfo(file1);
@@ -28,6 +31,19 @@ function synthgui
     t1 = t1(1:end-1);
 
     track1player = audioplayer(y1*amplitude1,Fs1*speed1);
+    
+    % define track2 (static)
+    file2 = 'track2.mp3';
+    track2 = audioinfo(file2);
+    [y2,Fs2] = audioread(file2);
+    
+    amplitude2 = 1;
+    speed2 = 1;
+    
+    t2 = 0:seconds(1/Fs2*speed2):seconds(track2.Duration);
+    t2 = t2(1:end-1);
+
+    track2player = audioplayer(y2*amplitude2,Fs2*speed2);
 
     %  Create and then hide the UI as it is being constructed.
     gui = figure('Visible','off','Position',[360,500,450,285]);
@@ -39,18 +55,24 @@ function synthgui
 
     playbtn = uicontrol('Style','pushbutton','String','Play','Position',[315,200,70,25],'Callback', @play_Callback);
     stopbtn = uicontrol('Style','pushbutton','String','Stop/Rewind','Position',[315,175,70,25],'Callback', @stop_Callback);
-
+    
+    speed1sld = uicontrol('Style', 'slider', 'Min',0.1,'Max',1.5,'Value',1,'Position', [315,150,70,25],'Callback', @speed1sld_Callback); 
+    speed2sld = uicontrol('Style', 'slider', 'Min',0.1,'Max',1.5,'Value',1,'Position', [315,125,70,25],'Callback', @speed2sld_Callback); 
+    
     ha = axes('Units','Pixels','Position',[50,60,200,185]);
-    align([loadTrack1,playbtn,stopbtn,controlsText],'Center','None');
+    align([loadTrack1,playbtn,stopbtn,speed1sld,speed2sld,controlsText],'Center','None');
 
-    % plot track 1
+    % plot tracks
     plot(t1,y1*amplitude1);
+    hold on
+    plot(t2,y2*amplitude2);
+    hold off
+    
     xlabel('Time')
     ylabel('Audio Signal')
 
     % Make the UI visible.
     gui.Visible = 'on';
-
 end
 
 function loadTrack1_Callback(hObject, eventdata, handles)
@@ -72,19 +94,65 @@ end
 
 function play_Callback(src, event)
     global track1player
+    global track2player
     global playbtn
 
-	if isplaying(track1player)
+	if isplaying(track1player) || isplaying(track2player)
         playbtn.String = 'Play';
-        pause(track1player)
+        % pause(track1player)
+        pause(track2player)
     else
         % play(track1player)
         playbtn.String = 'Pause';
-        resume(track1player)
+        % resume(track1player)
+        resume(track2player)
 	end
 end
 
 function stop_Callback(src, event)
     global track1player
+    global track2player
     stop(track1player)
+    stop(track2player)
+end
+
+function speed1sld_Callback(src, event)
+    global track1player
+    global y1
+    global amplitude1
+    global Fs1
+    global speed1
+   
+    % get current position
+    pos = track1player.CurrentSample;
+    
+    % stop ajust speed
+    stop(track1player)
+    speed1 = src.Value;
+    track1player = audioplayer(y1*amplitude1,Fs1*speed1);
+    
+    % calculate new position play from there
+    play(track1player, int64(pos*(1/speed1)))
+end
+
+function speed2sld_Callback(src, event)
+    global track2player
+    global y2
+    global amplitude2
+    global Fs2
+    global speed2
+    
+    % get current position
+    pos = track2player.CurrentSample;
+    
+    % stop ajust speed
+    stop(track2player)
+    speed2 = src.Value;
+    if speed2 >= 1
+        track2player = audioplayer(y2*speed2,Fs2*speed2);
+    else
+        track2player = audioplayer(downsample(y2,int64(1/speed2))*amplitude2,Fs2*speed2);   
+    end
+    % calculate new position play from there
+    play(track2player, int64(pos*(1/speed2)))
 end
