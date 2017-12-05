@@ -1,5 +1,8 @@
 clear sound;
 
+global amplitude1
+global speed1
+
 synthgui()
 
 function synthgui
@@ -25,13 +28,11 @@ function synthgui
 
     loadTrack1 = uicontrol('Style','pushbutton','String','Load Track 1','Position',[315,225,70,25],'Callback', @loadTrack1_Callback);
 
-    play = uicontrol('Style','pushbutton','String','Play','Position',[315,200,70,25],'Callback', {@play_Callback,track1player});
-    pause = uicontrol('Style','pushbutton','String','Pause','Position',[315,175,70,25],'Callback', {@pause_Callback,track1player});
-    resume = uicontrol('Style','pushbutton','String','Resume','Position',[315,150,70,25],'Callback', {@resume_Callback,track1player});
-    stop = uicontrol('Style','pushbutton','String','Stop','Position',[315,125,70,25],'Callback', {@stop_Callback,track1player});
+    play = uicontrol('Style','pushbutton','String','Play/Pause','Position',[315,200,70,25],'Callback', {@play_Callback,track1player});
+    stop = uicontrol('Style','pushbutton','String','Stop/Rewind','Position',[315,175,70,25],'Callback', {@stop_Callback,track1player});
 
     ha = axes('Units','Pixels','Position',[50,60,200,185]);
-    align([loadTrack1,play,stop,pause,resume,controlsText],'Center','None');
+    align([loadTrack1,play,stop,controlsText],'Center','None');
 
     % plot track 1
     plot(t1,y1*amplitude1);
@@ -50,17 +51,14 @@ function loadTrack1_Callback(hObject, eventdata, handles)
 end
 
 function play_Callback(src, event, player)
-   play(player)
-end
-
-function pause_Callback(src, event, player)
-   pause(player)
+   if isplaying(player)
+       pause(player)
+   else
+       % play(player)
+       resume(player)
+   end
 end
 
 function stop_Callback(src, event, player)
    stop(player)
-end
-
-function resume_Callback(src, event, player)
-   resume(player)
 end
