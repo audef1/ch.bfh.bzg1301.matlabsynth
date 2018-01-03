@@ -8,9 +8,11 @@ function synthgui
     global y1 y2 y3
     global Fs1 Fs2 Fs3
     global t1 t2 t3
+    global subplot1 subplot2 subplot3
     global amp1 amp2 amp3
     global speed1 speed2 speed3
     global trackplayer1 trackplayer2 trackplayer3
+    global tracklbl1 tracklbl2 tracklbl3
     
     global gui
     global playbtn
@@ -28,7 +30,7 @@ function synthgui
     speed1 = 1;
     
     t1 = 0:seconds(1/Fs1*speed1):seconds(track1.Duration);
-    t1 = t1(1:end-1);
+    t1 = t1(1:length(y1));
     
     trackplayer1 = audioplayer(downsample(y1*amp1, 3),(Fs1*speed1)/3);
     
@@ -41,7 +43,7 @@ function synthgui
     speed2 = 1;
     
     t2 = 0:seconds(1/Fs2*speed2):seconds(track2.Duration);
-    t2 = t2(1:end-1);
+    t2 = t2(1:length(y2));
 
     trackplayer2 = audioplayer(y2*amp2,Fs2*speed2);
     
@@ -54,7 +56,7 @@ function synthgui
     speed3 = 1;
     
     t3 = 0:seconds(1/Fs3*speed3):seconds(track3.Duration);
-    t3 = t3(1:end-1);
+    t3 = t3(1:length(y3));
 
     trackplayer3 = audioplayer(y3*amp3,Fs3*speed3);
 
@@ -67,13 +69,17 @@ function synthgui
     loadTrack2 = uicontrol('Style','pushbutton','String','Load Track 2','Position',[45,285,90,30],'Callback', @loadTrack2_Callback);
     loadTrack3 = uicontrol('Style','pushbutton','String','Load Track 3','Position',[45,135,90,30],'Callback', @loadTrack3_Callback);
     
-    speedsld1 = uicontrol('String', 'speed', 'Style', 'slider', 'Min',0.1,'Max',1.5,'Value',1,'Position', [500,435,250,25],'Callback', @track1_Callback); 
-    speedsld2 = uicontrol('String', 'speed', 'Style', 'slider', 'Min',0.1,'Max',1.5,'Value',1,'Position', [500,285,250,25],'Callback', @track2_Callback); 
-    speedsld3 = uicontrol('String', 'speed', 'Style', 'slider', 'Min',0.1,'Max',1.5,'Value',1,'Position', [500,135,250,25],'Callback', @track3_Callback); 
+    speedsld1 = uicontrol('String', 'speed', 'Style', 'slider', 'Min',0.1,'Max',1.5,'Value',1,'Position', [500,435,200,25],'Callback', @track1_Callback); 
+    speedsld2 = uicontrol('String', 'speed', 'Style', 'slider', 'Min',0.1,'Max',1.5,'Value',1,'Position', [500,285,200,25],'Callback', @track2_Callback); 
+    speedsld3 = uicontrol('String', 'speed', 'Style', 'slider', 'Min',0.1,'Max',1.5,'Value',1,'Position', [500,135,200,25],'Callback', @track3_Callback); 
     
-    ampsld1 = uicontrol('String', 'amplitude', 'Style', 'slider', 'Min',0.1,'Max',1.5,'Value',1,'Position', [800,435,20,135],'Callback', @track1_Callback); 
-    ampsld2 = uicontrol('String', 'amplitude', 'Style', 'slider', 'Min',0.1,'Max',1.5,'Value',1,'Position', [800,285,20,135],'Callback', @track2_Callback); 
-    ampsld3 = uicontrol('String', 'amplitude', 'Style', 'slider', 'Min',0.1,'Max',1.5,'Value',1,'Position', [800,135,20,135],'Callback', @track3_Callback); 
+    ampsld1 = uicontrol('String', 'amplitude', 'Style', 'slider', 'Min',0.1,'Max',1.5,'Value',1,'Position', [775,480,20,90],'Callback', @track1_Callback); 
+    ampsld2 = uicontrol('String', 'amplitude', 'Style', 'slider', 'Min',0.1,'Max',1.5,'Value',1,'Position', [775,330,20,90],'Callback', @track2_Callback); 
+    ampsld3 = uicontrol('String', 'amplitude', 'Style', 'slider', 'Min',0.1,'Max',1.5,'Value',1,'Position', [775,180,20,90],'Callback', @track3_Callback); 
+
+    tracklbl1 = uicontrol('Style','text','String',track1.Filename,'Position',[140,435,350,30],'HorizontalAlignment','left');
+    tracklbl2 = uicontrol('Style','text','String',track2.Filename,'Position',[140,285,350,30],'HorizontalAlignment','left');
+    tracklbl3 = uicontrol('Style','text','String',track3.Filename,'Position',[140,135,350,30],'HorizontalAlignment','left');
 
     playbtn = uicontrol('Style','pushbutton','String','Play','Position',[45,20,75,75],'Callback', @play_Callback);
     stopbtn = uicontrol('Style','pushbutton','String','Stop','Position',[125,20,75,75],'Callback', @stop_Callback);
@@ -87,7 +93,9 @@ function synthgui
     set(p1 , 'position' , [0.05,0.8,pwidth,pheight]);
     set(p1 , 'XAxisLocation', 'top')
     set(p1)
-    plot(t1,y1*amp1,'k');
+    subplot1 = plot(t1,y1*amp1,'k');
+    %ty1 = y1*amp1;
+    %plot(t1,ty1,'XDataSource','t1','YDataSource','ty1')
     hold on
     % plot other stuff here...
     xlabel('Time');
@@ -96,7 +104,9 @@ function synthgui
 
     p2 = subplot(3,1,2);
     set(p2 , 'position' , [0.05,0.55,pwidth,pheight]);
-    plot(t2,y2*amp2,'g');
+    subplot2 = plot(t2,y2*amp2,'g');
+    %ty2 = y2*amp2;
+    %plot(t2,ty2,'XDataSource','t2','YDataSource','ty2')
     hold on
     % plot other stuff here...
     xlabel('Time')
@@ -105,7 +115,9 @@ function synthgui
 
     p3 = subplot(3,1,3);
     set(p3 , 'position' , [0.05,0.3,pwidth,pheight]);
-    plot(t3,y3*amp3,'r');
+    subplot3 = plot(t3,y3*amp3,'r');
+    %ty3 = y3*amp3;
+    %plot(t3,ty3,'XDataSource','t3','YDataSource','ty3')
     hold on
     % plot other stuff here...
     xlabel('Time')
@@ -136,6 +148,9 @@ function loadTrack1_Callback(hObject, eventdata, handles)
     global trackplayer1
     global amp1
     global speed1
+    global tracklbl1
+    global t1
+    global subplot1
 
     [FileName1,PathName] = uigetfile('*.mp3','Select a mp3 file');
     
@@ -143,6 +158,11 @@ function loadTrack1_Callback(hObject, eventdata, handles)
         track1 = audioinfo(FileName1);
         [y1,Fs1] = audioread(FileName1);
         trackplayer1 = audioplayer(y1*amp1,Fs1*speed1);
+        tracklbl1.String = track1.Filename;
+        
+        t1 = 0:seconds(1/Fs1*speed1):seconds(track1.Duration);
+        t1 = t1(1:length(y1));
+        subplot1 = plot(t1,y1*amp1,'k');
     end
 end
 
@@ -153,13 +173,22 @@ function loadTrack2_Callback(hObject, eventdata, handles)
     global trackplayer2
     global amp2
     global speed2
-
+    global tracklbl2
+    global t2
+    global subplot2
+    
+    
     [FileName2,PathName] = uigetfile('*.mp3','Select a mp3 file');
     
     if FileName2 ~= 0
         track2 = audioinfo(FileName2);
         [y2,Fs2] = audioread(FileName2);
         trackplayer2 = audioplayer(y2*amp2,Fs2*speed2);
+        tracklbl2.String = track2.Filename;
+        
+        t2 = 0:seconds(1/Fs2*speed2):seconds(track2.Duration);
+        t2 = t2(1:length(y2));
+        subplot2 = plot(t2,y2*amp2,'r');
     end
 end
 
@@ -170,6 +199,9 @@ function loadTrack3_Callback(hObject, eventdata, handles)
     global trackplayer3
     global amp3
     global speed3
+    global tracklbl3
+    global t3
+    global subplot3
 
     [FileName3,PathName] = uigetfile('*.mp3','Select a mp3 file');
     
@@ -177,6 +209,11 @@ function loadTrack3_Callback(hObject, eventdata, handles)
         track3 = audioinfo(FileName3);
         [y3,Fs3] = audioread(FileName3);
         trackplayer3 = audioplayer(y3*amp3,Fs3*speed3);
+        tracklbl3.String = track3.Filename;
+        
+        t3 = 0:seconds(1/Fs3*speed3):seconds(track3.Duration);
+        t3 = t3(1:length(y3));
+        subplot3 = plot(t3,y3*amp3,'b');
     end
 end
 
