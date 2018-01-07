@@ -37,7 +37,7 @@ function synthgui
     t1 = 0:seconds(1/Fs1*speed1):seconds(track1.Duration);
     t1 = t1(1:length(y1));
     
-    trackplayer1 = audioplayer(downsample(y1*amp1, 3),(Fs1*speed1)/3);
+    trackplayer1 = audioplayer(y1*amp1,Fs1*speed1);
     
     % define track2 (static)
     file2 = 'track2.mp3';
@@ -263,6 +263,10 @@ function track1_Callback(src, event)
     global amp1
     global Fs1
     global speed1
+    global p1 p2 p3 subplot1
+    global t1
+    global track1
+    global downsamplerate pwidth pheight
    
     % get current position
     pos = trackplayer1.CurrentSample;
@@ -281,6 +285,17 @@ function track1_Callback(src, event)
     
     % calculate new position play from there
     play(trackplayer1, int64(pos*(1/speed1)))
+    
+    % replot the edited track
+    t1 = 0:seconds(1/Fs1*speed1):seconds(track1.Duration);
+    t1 = t1(1:length(y1));
+    p1 = subplot(3,1,1);
+    set(p1 , 'position' , [0.05,0.8,pwidth,pheight]);
+    subplot1 = plot(downsample(t1,downsamplerate),downsample(y1*amp1,downsamplerate),'r');
+    
+    % relink axes
+    linkaxes([p1,p2,p3],'off');
+    linkaxes([p1,p2,p3],'x')
 end
 
 function track2_Callback(src, event)
@@ -289,6 +304,10 @@ function track2_Callback(src, event)
     global amp2
     global Fs2
     global speed2
+    global p1 p2 p3 subplot2
+    global t2
+    global track2
+    global downsamplerate pwidth pheight
     
     % get current position
     pos = trackplayer2.CurrentSample;
@@ -314,6 +333,17 @@ function track2_Callback(src, event)
     
     % calculate new position play from there
     play(trackplayer2, int64(pos*(1/speed2)))
+    
+    % replot the edited track
+    t2 = 0:seconds(1/Fs2*speed2):seconds(track2.Duration);
+    t2 = t2(1:length(y2));
+    p2 = subplot(3,1,2);
+    set(p2 , 'position' , [0.05,0.55,pwidth,pheight]);
+    subplot2 = plot(downsample(t2,downsamplerate),downsample(y2*amp2,downsamplerate),'g');
+    
+    % relink axes
+    linkaxes([p1,p2,p3],'off');
+    linkaxes([p1,p2,p3],'x')
 end
 
 function track3_Callback(src, event)
@@ -322,6 +352,10 @@ function track3_Callback(src, event)
     global amp3
     global Fs3
     global speed3
+    global p1 p2 p3 subplot3
+    global t3
+    global track3
+    global downsamplerate pwidth pheight
     
     % get current position
     pos = trackplayer3.CurrentSample;
@@ -347,4 +381,15 @@ function track3_Callback(src, event)
     
     % calculate new position play from there
     play(trackplayer3, int64(pos*(1/speed3)))
+    
+    % replot the edited track
+    t3 = 0:seconds(1/Fs3*speed3):seconds(track3.Duration);
+    t3 = t3(1:length(y3));
+    p3 = subplot(3,1,3);
+    set(p3 , 'position' , [0.05,0.3,pwidth,pheight]);
+    subplot3 = plot(downsample(t3,downsamplerate),downsample(y3*amp3,downsamplerate),'b');
+    
+    % relink axes
+    linkaxes([p1,p2,p3],'off');
+    linkaxes([p1,p2,p3],'x')
 end
